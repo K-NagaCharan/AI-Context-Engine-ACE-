@@ -17,7 +17,7 @@ program
 // init
 program
   .command("init")
-  .description("Initialize ACE in project")
+  .option("-y", "Skip prompts")
   .action(init);
 
 // update
