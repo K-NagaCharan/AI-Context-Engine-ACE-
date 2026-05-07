@@ -1,4 +1,6 @@
-# **AI Context Engine (ACE) — Architecture & Working (Commit-Based Tracking)**
+# **AI Context Engine (ACE) — Architecture & Working (****Commit Tracking)**
+
+  
 
 ---
 
@@ -15,7 +17,7 @@ AI Context Engine (ACE) is a CLI-based developer tool that observes changes in a
 
 ## 🔹 Core Components
 
-```
+```id="arch1"
 CLI (commander)
    ↓
 Command Handlers
@@ -36,8 +38,9 @@ Core Modules
 
 Commands:
 
-```
+```id="arch2"
 ace-track init
+ace-track init -y
 ace-track update
 ace-track export
 ace-track status
@@ -45,28 +48,18 @@ ace-track status
 
 ---
 
-## 2. Git Module (Updated Core Logic)
+## 2. Git Module
 
-### 🔥 Key Change:
+### 🔥 Core Principle:
 
-ACE now tracks **commits**, not raw diffs.
-
----
+ACE tracks **commits**, not raw diffs.
 
 ### Responsibilities:
 
-* Detect repository state
+* Detect Git repository
 * Fetch commits since last update
 * Handle edge cases
-* Provide clean commit data
-
----
-
-### Core Command Used:
-
-```
-git log <last_processed_commit>..HEAD
-```
+* Provide structured commit data
 
 ---
 
@@ -75,19 +68,22 @@ git log <last_processed_commit>..HEAD
 * Cleans commit data
 * Merges AI + human input
 * Maintains structured history
+* Appends new entries
 
 ---
 
 ## 4. AI Engine
 
-* Processes commit summaries
-* Returns structured JSON
+* Triggered only during `update`
+* Uses environment variables for API access
+* Sends structured prompts
+* Returns JSON summaries
 
 ---
 
 ## 5. Storage Layer
 
-```
+```id="arch3"
 .ace/
   project.ai.json
   config.json
@@ -95,11 +91,21 @@ git log <last_processed_commit>..HEAD
 
 ---
 
-### 📄 config.json (Updated)
+### 📄 project.ai.json
+
+Stores:
+
+* Project metadata
+* AI summaries
+* Historical entries
+
+---
+
+### 📄 config.json
 
 ```json
 {
-  "last_processed_commit": "abc123",
+  "last_processed_commit": null,
   "max_commits_per_update": 5
 }
 ```
@@ -108,14 +114,17 @@ git log <last_processed_commit>..HEAD
 
 ## 6. Exporter
 
-* Generates AI-ready prompt
-* Outputs to terminal / file / clipboard
+* Generates:
+
+  * AI-ready prompt
+  * Markdown output
+  * Terminal output
 
 ---
 
 # 📁 Folder Structure
 
-```
+```id="arch5"
 project-root/
 │── .ace/
 │   ├── project.ai.json
@@ -133,36 +142,68 @@ project-root/
 
 ## 🟢 1. `ace-track init`
 
-* Validates Git repo exists
-* Creates `.ace/`
-* Initializes:
+### Modes:
 
-  * `project.ai.json`
-  * `config.json`
+```id="arch6"
+ace-track init        # interactive
+ace-track init -y     # skip prompts
+```
+
+---
+
+### Flow:
+
+```id="arch7"
+Validate Git repo
+   ↓
+Check .ace not exists
+   ↓
+(Optional) Ask user:
+   - project description
+   - tech stack
+   ↓
+Create .ace/
+   ↓
+Initialize project.ai.json
+Initialize config.json
+```
+
+---
+
+### Example project.ai.json
+
+```json
+{
+  "version": "1.0",
+  "project": {
+    "name": "my-project",
+    "description": "JWT auth service",
+    "tech_stack": ["Spring Boot", "React"],
+    "created_at": "timestamp"
+  },
+  "entries": []
+}
+```
 
 ---
 
 ## 🟡 2. `ace-track update` (Commit-Based Workflow)
 
-### Command:
-
-```
-ace-track update --note "reason for change"
-```
-
 ---
 
-## 🔄 Flow:
+### Flow:
 
-```
+```id="arch9"
 Validate environment
    ↓
-Check Git repo exists
-Check .ace exists
+Check .git + .ace exist
    ↓
 Check commit state
    ↓
-Fetch commits
+Fetch commits:
+  git log <last_commit>..HEAD
+   ↓
+Handle edge cases
    ↓
 Filter commits
    ↓
@@ -175,93 +216,47 @@ Update last_processed_commit
 
 ---
 
-# ⚠️ Edge Case Handling (Critical)
+# ⚠️ Edge Case Handling
 
 ---
 
 ## 🔴 1. First Run (No last_processed_commit)
 
-### Problem:
-
-No baseline commit exists.
-
-### Solution:
-
-```
+```id="arch10"
 Use: git show HEAD
 ```
-
-* Process only latest commit
-* Do NOT process entire history
 
 ---
 
 ## 🔴 2. No Commits Yet
 
-### Problem:
-
-Repository is empty
-
-### Solution:
-
-* Detect using Git
-* Output:
-
-```
+```id="arch11"
 "No commits found. Make your first commit, then run ace-track update."
 ```
 
 ---
 
-## 🔴 3. Multiple Commits Since Last Update
+## 🔴 3. Too Many Commits
 
-### Problem:
-
-Too many commits → large AI input
-
-### Solution:
-
-* Limit commits:
-
-```
-max_commits_per_update = 5
-```
-
-* If exceeded:
-
-```
-"15 commits found, processing last 5"
+```id="arch12"
+Limit to max_commits_per_update (default: 5)
 ```
 
 ---
 
 ## 🔴 4. Merge Commits
 
-### Problem:
-
-Noisy, large, low-signal diffs
-
-### Detection:
-
-* Commit with >1 parent
-
-### Solution:
-
-* Skip merge commits
+* Detect commits with multiple parents
+* Skip them
 
 ---
 
-## 🔴 5. Wrong Directory / Missing Setup
+## 🔴 5. Invalid Directory
 
-### Checks:
-
-* `.git` exists?
-* `.ace` exists?
-
-### If not:
-
-```
-"Not a valid ACE project. Run ace-track init."
+```id="arch13"
+Ensure:
+- .git exists
+- .ace exists
 ```
 
 ---
@@ -272,7 +267,7 @@ Noisy, large, low-signal diffs
 
 ## Step 1: Fetch Commits
 
-```
+```id="arch14"
 git log <last_commit>..HEAD
 ```
 
@@ -281,13 +276,13 @@ git log <last_commit>..HEAD
 ## Step 2: Filter
 
 * Remove merge commits
-* Limit to N commits
+* Limit commit count
 
 ---
 
 ## Step 3: Extract Data
 
-```
+```id="arch15"
 {
   commit_hash,
   message,
@@ -300,9 +295,7 @@ git log <last_commit>..HEAD
 
 ## Step 4: AI Processing
 
-AI returns:
-
-```
+```json
 {
   "summary": "...",
   "key_changes": [...],
@@ -314,7 +307,7 @@ AI returns:
 
 ## Step 5: Store Entry
 
-```
+```json
 {
   "id": "uuid",
   "commit": "abc123",
@@ -330,7 +323,7 @@ AI returns:
 
 ## Step 6: Update Config
 
-```
+```id="arch18"
 last_processed_commit = latest_commit_hash
 ```
 
@@ -338,7 +331,7 @@ last_processed_commit = latest_commit_hash
 
 # 📊 Data Model
 
-```
+```json
 {
   "version": "1.0",
   "project": {...},
@@ -352,24 +345,24 @@ last_processed_commit = latest_commit_hash
 
 1. Commit-based tracking (not raw diff)
 2. Append-only history
-3. AI + human collaboration
+3. Human + AI collaboration
 4. Lightweight context
-5. Safe defaults for edge cases
+5. Safe defaults and graceful failures
 
 ---
 
 # 🧭 Mental Model
 
-Each entry represents:
+Each entry answers:
 
-> A meaningful step in the evolution of the project
+> “What changed, why it changed, and what it means for the project?”
 
 ---
 
 # ⚙️ Execution Order
 
 1. CLI
-2. Storage
+2. Storage (`init`)
 3. Git commit tracking
 4. AI summarization
 5. Export system
