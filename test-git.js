@@ -1,21 +1,25 @@
 const {
-  isGitRepo,
-  hasCommits,
-  getLatestCommit,
   getCommitsSince,
 } = require("./src/core/git");
 
+const {
+  buildContext,
+} = require("./src/core/context");
+
 async function test() {
-  console.log("Is Repo:", await isGitRepo());
+  const commits = await getCommitsSince(null);
 
-  console.log("Has Commits:", await hasCommits());
+  if (commits.length === 0) {
+    console.log("No commits found.");
+    return;
+  }
 
-  console.log("Latest Commit:", await getLatestCommit());
-
-  console.log(
-    "Commits:",
-    await getCommitsSince(null)
+  const context = await buildContext(
+    commits[0],
+    "testing context engine"
   );
+
+  console.log(JSON.stringify(context, null, 2));
 }
 
 test();

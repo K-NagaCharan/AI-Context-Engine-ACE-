@@ -61,9 +61,51 @@ async function getCommitsSince(lastCommit, limit = 5) {
   return commits;
 }
 
+// Get names of the files to which changes are done
+async function getCommitFiles(commitHash) {
+  const result = await git.show([
+    "--name-only",
+    "--pretty=",
+    commitHash,
+  ]);
+
+  return result
+    .split("\n")
+    .map((f) => f.trim())
+    .filter(Boolean);
+}
+
+// The actual code diff
+async function getCommitDiff(commitHash) {
+  const rawDiff = await git.show([
+    "--format=",
+    "--unified=2",
+    commitHash,
+  ]);
+
+  // Remove noisy metadata
+  const cleaned = rawDiff
+    .split("\n")
+    .filter((line) => {
+      return (
+        !line.startsWith("diff --git") &&
+        !line.startsWith("index ") &&
+        !line.startsWith("--- ") &&
+        !line.startsWith("+++ ") &&
+        !line.startsWith("new file mode")
+      );
+    })
+    .join("\n");
+
+  // Limit size
+  return cleaned.slice(0, 3000);
+}
+
 module.exports = {
   isGitRepo,
   hasCommits,
   getLatestCommit,
   getCommitsSince,
+  getCommitFiles,
+  getCommitDiff,
 };
