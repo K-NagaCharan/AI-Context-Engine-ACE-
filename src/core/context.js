@@ -18,6 +18,29 @@ async function buildContext(commit, note = "") {
   };
 }
 
+
+function buildEntry(context, aiSummary) {
+  return {
+    // Short commit hash
+    commit: context.commit.slice(0, 7),
+
+    message: context.message,
+    
+    // Current timestamp
+    timestamp: new Date().toISOString(),
+
+    // Metadata from context
+    files: context.files,
+    note: context.note,
+
+    // AI-generated fields
+    summary: aiSummary.summary,
+    key_changes: aiSummary.key_changes,
+    impact: aiSummary.impact,
+  };
+}
+
 module.exports = {
   buildContext,
+  buildEntry,
 };

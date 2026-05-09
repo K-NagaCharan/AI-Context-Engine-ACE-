@@ -83,22 +83,25 @@ async function getCommitDiff(commitHash) {
     commitHash,
   ]);
 
-  // Remove noisy metadata
-  const cleaned = rawDiff
-    .split("\n")
-    .filter((line) => {
-      return (
-        !line.startsWith("diff --git") &&
-        !line.startsWith("index ") &&
-        !line.startsWith("--- ") &&
-        !line.startsWith("+++ ") &&
-        !line.startsWith("new file mode")
-      );
-    })
-    .join("\n");
+  const lines = rawDiff.split("\n");
+  const result = [];
 
-  // Limit size
-  return cleaned.slice(0, 3000);
+  for (const line of lines) {
+    if (line.startsWith("diff --git")) {
+      // Extract filename and add as separator
+      const filename = line.split(" b/")[1] || "";
+      result.push(`\n### ${filename}`);
+    } else if (
+      line.startsWith("+") ||
+      line.startsWith("-") ||
+      line.startsWith("@@")
+    ) {
+      result.push(line);
+    }
+  }
+
+  const trimmed = result.slice(0, 80).join("\n");
+  return trimmed.slice(0, 1500);
 }
 
 module.exports = {

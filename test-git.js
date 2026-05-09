@@ -4,10 +4,16 @@ const {
 
 const {
   buildContext,
+  buildEntry,
 } = require("./src/core/context");
 
+const {
+  summarizeContext,
+} = require("./src/core/ai");
+
 async function test() {
-  const commits = await getCommitsSince(null);
+  const commits =
+    await getCommitsSince(null);
 
   if (commits.length === 0) {
     console.log("No commits found.");
@@ -16,10 +22,18 @@ async function test() {
 
   const context = await buildContext(
     commits[0],
-    "testing context engine"
+    "testing AI integration"
   );
 
-  console.log(JSON.stringify(context, null, 2));
+  const aiSummary =
+    await summarizeContext(context);
+
+  const entry =
+    buildEntry(context, aiSummary);
+
+  console.log(
+    JSON.stringify(entry, null, 2)
+  );
 }
 
 test();
