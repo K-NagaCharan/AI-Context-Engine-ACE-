@@ -1,6 +1,6 @@
 {
   "name": "ace-track",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "AI Context Engine CLI for tracking and transferring project context across AI tools",
   "main": "bin/cli.js",
   "bin": {
@@ -33,13 +33,10 @@
     "type": "git",
     "url": "https://github.com/K-NagaCharan/ACE-AI-Context-Engine"
   },
-
   "homepage": "https://github.com/K-NagaCharan/ACE-AI-Context-Engine",
-
   "bugs": {
     "url": "https://github.com/K-NagaCharan/ACE-AI-Context-Engine"
   },
-
   "engines": {
     "node": ">=18"
   },
