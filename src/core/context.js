@@ -7,6 +7,11 @@ const {
 async function buildContext(commit, note = "") {
   const files = await getCommitFiles(commit.hash);
 
+  // Skip commits that only modify ACE files
+  if (files.length === 0) {
+    return null;
+  }
+
   const diff = await getCommitDiff(commit.hash);
 
   return {

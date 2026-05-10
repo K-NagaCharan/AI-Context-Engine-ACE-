@@ -70,9 +70,16 @@ async function getCommitFiles(commitHash) {
   ]);
 
   return result
-    .split("\n")
-    .map((f) => f.trim())
-    .filter(Boolean);
+  .split("\n")
+  .map((f) => f.trim())
+
+  // Remove empty lines
+  .filter(Boolean)
+
+  // Ignore ACE internal files
+  .filter((file) => {
+    return !file.startsWith(".ace/");
+  });
 }
 
 // The actual code diff
