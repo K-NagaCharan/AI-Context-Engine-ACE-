@@ -1,0 +1,9 @@
+node_modules
+.env*
+.git
+.ace
+test*
+*.log
+.vscode
+.DS_Store
+Thumbs.db

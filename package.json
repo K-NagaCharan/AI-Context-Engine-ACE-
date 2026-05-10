@@ -6,6 +6,12 @@
   "bin": {
     "ace-track": "./bin/cli.js"
   },
+  "files": [
+    "bin",
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "test": "echo \"No tests yet\""
   },
@@ -15,10 +21,28 @@
     "context",
     "llm",
     "developer-tools",
+    "git",
+    "memory",
+    "ollama",
+    "openai",
     "productivity"
   ],
   "author": "K.Naga.Charan",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/K-NagaCharan/ACE-AI-Context-Engine"
+  },
+
+  "homepage": "https://github.com/K-NagaCharan/ACE-AI-Context-Engine",
+
+  "bugs": {
+    "url": "https://github.com/K-NagaCharan/ACE-AI-Context-Engine"
+  },
+
+  "engines": {
+    "node": ">=18"
+  },
   "dependencies": {
     "clipboardy": "^5.3.1",
     "commander": "^14.0.3",
