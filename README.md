@@ -1,386 +1,378 @@
-# **AI Context Engine (ACE) — Architecture & Working (****Commit Tracking)**
+# ACE Track
 
-  
+ACE Track is a CLI tool that creates portable AI-readable project memory.
+
+It tracks Git commits, extracts meaningful development context using an LLM, and stores structured project history that can later be exported and handed off to another AI system.
+
+The goal of ACE Track is to solve the context-loss problem that happens when developers switch between:
+
+* ChatGPT
+* Codex
+* Claude
+* Gemini
+* Cursor
+* Local LLMs
+* Other AI coding tools
+
+Instead of repeatedly explaining the project from scratch, ACE Track builds semantic project memory over time.
 
 ---
 
-## 🧠 High-Level Concept
+# Features
 
-AI Context Engine (ACE) is a CLI-based developer tool that observes changes in a codebase using Git commits, interprets their meaning using AI, and stores a structured, evolving memory of the project.
-
-> Git tracks *what changed*
-> ACE tracks *what those changes mean*
+* Git-based project tracking
+* AI-generated commit summaries
+* Structured project memory storage
+* Provider-agnostic AI integration
+* OpenAI-compatible API support
+* Export system for AI handoff
+* Read-only project status dashboard
+* Local LLM support via Ollama
+* Incremental commit processing
+* Portable context generation
 
 ---
 
-# 🏗️ System Architecture
+# Architecture
 
-## 🔹 Core Components
+```text
+Git Commits
+    ↓
+Context Engine
+    ↓
+AI Summarization
+    ↓
+Structured Memory
+    ↓
+Export System
+```
 
-```id="arch1"
-CLI (commander)
-   ↓
-Command Handlers
-   ↓
-Core Modules
-   ├── Git Module
-   ├── Context Engine
-   ├── AI Engine
-   ├── Storage Layer
-   └── Exporter
+ACE Track converts raw Git history into structured semantic memory.
+
+---
+
+# Installation
+
+## Clone Repository
+
+```bash
+git clone <repo-url>
+cd ace-track
+```
+
+## Install Dependencies
+
+```bash
+npm install
+```
+
+## Link CLI Locally
+
+```bash
+npm link
+```
+
+You can now use:
+
+```bash
+ace-track
+```
+
+from anywhere on your system.
+
+---
+
+# Supported AI Providers
+
+ACE Track works with any OpenAI-compatible API.
+
+Examples:
+
+* OpenAI
+* Ollama
+* Gemini OpenAI Compatibility API
+* OpenRouter
+* LM Studio
+* Local inference servers
+
+---
+
+# Environment Configuration
+
+Create a `.env` file inside the project you want to track.
+
+Example for Ollama:
+
+```env
+ACE_API_KEY=dummy
+ACE_BASE_URL=http://localhost:11434/v1
+ACE_MODEL=gemma3:12b
+```
+
+Example for Gemini:
+
+```env
+ACE_API_KEY=your_api_key
+ACE_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai
+ACE_MODEL=gemini-2.5-flash
 ```
 
 ---
 
-# 🔧 Component Breakdown
+# Project Initialization
 
-## 1. CLI Layer
+Inside your project repository:
 
-Commands:
-
-```id="arch2"
+```bash
 ace-track init
+```
+
+This creates:
+
+```text
+.ace/
+├── config.json
+└── project.ai.json
+```
+
+---
+
+# Commands
+
+## Initialize ACE
+
+```bash
+ace-track init
+```
+
+Interactive project setup.
+
+---
+
+## Initialize Quickly
+
+```bash
 ace-track init -y
+```
+
+Skips interactive setup.
+
+---
+
+## Update Project Memory
+
+```bash
 ace-track update
-ace-track export
+```
+
+Processes new commits since the last update.
+
+Optional developer note:
+
+```bash
+ace-track update --note "implemented authentication system"
+```
+
+---
+
+## Project Status
+
+```bash
 ace-track status
 ```
 
----
+Displays:
 
-## 2. Git Module
-
-### 🔥 Core Principle:
-
-ACE tracks **commits**, not raw diffs.
-
-### Responsibilities:
-
-* Detect Git repository
-* Fetch commits since last update
-* Handle edge cases
-* Provide structured commit data
+* Project information
+* Total entries
+* Last processed commit
+* Recent project history
 
 ---
 
-## 3. Context Engine
+## Export AI Context
 
-* Cleans commit data
-* Merges AI + human input
-* Maintains structured history
-* Appends new entries
+```bash
+ace-track export
+```
 
----
-
-## 4. AI Engine
-
-* Triggered only during `update`
-* Uses environment variables for API access
-* Sends structured prompts
-* Returns JSON summaries
+Generates portable AI-readable project context.
 
 ---
 
-## 5. Storage Layer
+## Export Markdown File
 
-```id="arch3"
-.ace/
-  project.ai.json
-  config.json
+```bash
+ace-track export --format md
+```
+
+Creates:
+
+```text
+ace-export.md
 ```
 
 ---
 
-### 📄 project.ai.json
+## Copy Export to Clipboard
 
-Stores:
+```bash
+ace-track export --to-clipboard
+```
 
-* Project metadata
-* AI summaries
-* Historical entries
+Copies export directly to clipboard.
 
 ---
 
-### 📄 config.json
+# Example Workflow
+
+## 1. Initialize Project
+
+```bash
+ace-track init
+```
+
+---
+
+## 2. Make Changes
+
+```bash
+git add .
+git commit -m "added authentication system"
+```
+
+---
+
+## 3. Update ACE Memory
+
+```bash
+ace-track update --note "using JWT for scalability"
+```
+
+---
+
+## 4. Export Context
+
+```bash
+ace-track export --to-clipboard
+```
+
+Paste the exported context into another AI system.
+
+---
+
+# Storage Structure
+
+## `config.json`
+
+Tracks processing state.
 
 ```json
 {
-  "last_processed_commit": null,
+  "last_processed_commit": "88de87e",
   "max_commits_per_update": 5
 }
 ```
 
 ---
 
-## 6. Exporter
+## `project.ai.json`
 
-* Generates:
+Stores structured semantic project memory.
 
-  * AI-ready prompt
-  * Markdown output
-  * Terminal output
-
----
-
-# 📁 Folder Structure
-
-```id="arch5"
-project-root/
-│── .ace/
-│   ├── project.ai.json
-│   └── config.json
-│
-│── src/
-│── package.json
-```
-
----
-
-# 🔄 Working Flow
-
----
-
-## 🟢 1. `ace-track init`
-
-### Modes:
-
-```id="arch6"
-ace-track init        # interactive
-ace-track init -y     # skip prompts
-```
-
----
-
-### Flow:
-
-```id="arch7"
-Validate Git repo
-   ↓
-Check .ace not exists
-   ↓
-(Optional) Ask user:
-   - project description
-   - tech stack
-   ↓
-Create .ace/
-   ↓
-Initialize project.ai.json
-Initialize config.json
-```
-
----
-
-### Example project.ai.json
+Example:
 
 ```json
 {
-  "version": "1.0",
-  "project": {
-    "name": "my-project",
-    "description": "JWT auth service",
-    "tech_stack": ["Spring Boot", "React"],
-    "created_at": "timestamp"
-  },
-  "entries": []
+  "commit": "88de87e",
+  "message": "added context engine",
+  "timestamp": "2026-05-10T08:41:05.535Z",
+  "files": [
+    "src/core/context.js"
+  ],
+  "note": "testing AI integration",
+  "summary": "Implemented structured context transformation.",
+  "key_changes": [
+    "Added buildContext function",
+    "Added diff extraction"
+  ],
+  "impact": "Enables AI-readable project memory."
 }
 ```
 
 ---
 
-## 🟡 2. `ace-track update` (Commit-Based Workflow)
+# Design Decisions
+
+## Incremental Commit Processing
+
+ACE Track processes only commits that were not previously analyzed.
+
+This avoids:
+
+* repeated AI calls
+* duplicate summaries
+* unnecessary token usage
 
 ---
 
-### Flow:
+## `.ace/` Isolation
 
-```id="arch9"
-Validate environment
-   ↓
-Check .git + .ace exist
-   ↓
-Check commit state
-   ↓
-Fetch commits:
-  git log <last_commit>..HEAD
-   ↓
-Handle edge cases
-   ↓
-Filter commits
-   ↓
-Send to AI
-   ↓
-Store structured entries
-   ↓
-Update last_processed_commit
+ACE ignores its own metadata files during analysis.
+
+This prevents recursive summaries like:
+
+```text
+AI summaries about AI summaries
 ```
 
 ---
 
-# ⚠️ Edge Case Handling
+## Human Intent Preservation
+
+ACE stores both:
+
+* raw developer commit messages
+* AI-generated semantic summaries
+
+This preserves:
+
+* human intent
+* AI interpretation
+
+simultaneously.
 
 ---
 
-## 🔴 1. First Run (No last_processed_commit)
+# Current MVP Scope
 
-```id="arch10"
-Use: git show HEAD
+The current version focuses on:
+
+* semantic commit tracking
+* AI summarization
+* portable project context
+* local-first workflows
+
+Not yet included:
+
+* VS Code extension
+* MCP integration
+* Semantic clustering
+* Multi-developer synchronization
+* Vector memory search
+
+---
+
+# Development Philosophy
+
+ACE Track is designed around one core idea:
+
+> Project continuity should survive across AI systems.
+
+The tool treats commits as:
+
+```text
+AI-interpreted development events
 ```
 
----
-
-## 🔴 2. No Commits Yet
-
-```id="arch11"
-"No commits found. Make your first commit, then run ace-track update."
-```
-
----
-
-## 🔴 3. Too Many Commits
-
-```id="arch12"
-Limit to max_commits_per_update (default: 5)
-```
-
----
-
-## 🔴 4. Merge Commits
-
-* Detect commits with multiple parents
-* Skip them
-
----
-
-## 🔴 5. Invalid Directory
-
-```id="arch13"
-Ensure:
-- .git exists
-- .ace exists
-```
-
----
-
-# 📦 Commit Processing Pipeline
-
----
-
-## Step 1: Fetch Commits
-
-```id="arch14"
-git log <last_commit>..HEAD
-```
-
----
-
-## Step 2: Filter
-
-* Remove merge commits
-* Limit commit count
-
----
-
-## Step 3: Extract Data
-
-```id="arch15"
-{
-  commit_hash,
-  message,
-  files_changed,
-  diff (trimmed)
-}
-```
-
----
-
-## Step 4: AI Processing
-
-```json
-{
-  "summary": "...",
-  "key_changes": [...],
-  "impact": "..."
-}
-```
-
----
-
-## Step 5: Store Entry
-
-```json
-{
-  "id": "uuid",
-  "commit": "abc123",
-  "timestamp": "...",
-  "summary": "...",
-  "key_changes": [...],
-  "impact": "...",
-  "note": "..."
-}
-```
-
----
-
-## Step 6: Update Config
-
-```id="arch18"
-last_processed_commit = latest_commit_hash
-```
-
----
-
-# 📊 Data Model
-
-```json
-{
-  "version": "1.0",
-  "project": {...},
-  "entries": [...]
-}
-```
-
----
-
-# 🧠 Design Principles
-
-1. Commit-based tracking (not raw diff)
-2. Append-only history
-3. Human + AI collaboration
-4. Lightweight context
-5. Safe defaults and graceful failures
-
----
-
-# 🧭 Mental Model
-
-Each entry answers:
-
-> “What changed, why it changed, and what it means for the project?”
-
----
-
-# ⚙️ Execution Order
-
-1. CLI
-2. Storage (`init`)
-3. Git commit tracking
-4. AI summarization
-5. Export system
-
----
-
-# 🚀 Final Understanding
-
-ACE transforms this:
-
-| Without ACE        | With ACE            |
-| ------------------ | ------------------- |
-| Raw commits        | Meaningful history  |
-| Lost intent        | Preserved reasoning |
-| Manual explanation | One-command export  |
-
----
-
-# 🧠 One-Line Summary
-
-> ACE converts Git commit history into structured, AI-understandable project memory.
+instead of simple Git history.
