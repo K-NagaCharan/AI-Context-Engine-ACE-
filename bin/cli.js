@@ -36,7 +36,14 @@ program
 // export
 program
   .command("export")
-  .description("Export project context")
+  .option(
+    "--format <type>",
+    "Export format"
+  )
+  .option(
+    "--to-clipboard",
+    "Copy export to clipboard"
+  )
   .action(exportCmd);
 
 program.parse(process.argv);
