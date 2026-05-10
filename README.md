@@ -320,6 +320,8 @@ This avoids:
 
 ACE ignores its own metadata files during analysis.
 
+**For this to happen, make sure to add '.ace/' to the '.gitignore' file**
+
 This prevents recursive summaries like:
 
 ```text
